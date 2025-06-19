@@ -1,0 +1,68 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>مساعد الأكواد الذكي</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <style>
+    body {
+      background-color: #0e0e11;
+      font-family: 'Tajawal', sans-serif;
+    }
+  </style>
+</head>
+<body class="text-white flex items-center justify-center h-screen">
+  <div class="w-full max-w-2xl p-6 bg-[#131316] rounded-xl shadow-lg">
+    <div class="flex items-center mb-4 space-x-4 rtl:space-x-reverse">
+      <div class="text-purple-500 text-4xl">
+        <svg class="w-10 h-10" fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24">
+          <path d="M12 6v6l4 2"></path>
+        </svg>
+      </div>
+      <h1 class="text-2xl font-bold">مساعد الأكواد الذكي</h1>
+    </div>
+
+    <div id="chat-box" class="bg-[#1c1c21] h-80 overflow-y-auto p-4 rounded-lg space-y-2 text-right text-sm">
+      <!-- الرسائل هنا -->
+    </div>
+
+    <div class="mt-4 flex items-center space-x-2 rtl:space-x-reverse">
+      <button onclick="sendMessage()" class="bg-purple-600 hover:bg-purple-700 px-4 py-2 rounded-lg text-white">
+        إرسال
+      </button>
+      <input id="user-input" type="text" placeholder="اكتب رسالتك هنا..." class="flex-1 p-2 bg-[#1f1f24] text-white rounded-lg focus:outline-none" />
+    </div>
+  </div>
+
+  <script>
+    function appendMessage(sender, text) {
+      const msg = document.createElement("div");
+      msg.className = sender === "user" ? "text-purple-300 text-sm text-right" : "text-gray-300 text-sm text-right";
+      msg.textContent = text;
+      document.getElementById("chat-box").appendChild(msg);
+      document.getElementById("chat-box").scrollTop = document.getElementById("chat-box").scrollHeight;
+    }
+
+    async function sendMessage() {
+      const input = document.getElementById("user-input");
+      const message = input.value.trim();
+      if (!message) return;
+      appendMessage("user", message);
+      input.value = "";
+
+      try {
+        const res = await fetch("/ask", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ message })
+        });
+        const data = await res.json();
+        appendMessage("ai", data.response);
+      } catch (err) {
+        appendMessage("ai", "حدث خطأ، حاول مرة أخرى.");
+      }
+    }
+  </script>
+</body>
+</html>
